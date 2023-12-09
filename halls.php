@@ -28,7 +28,8 @@ $last_updated = mysqli_fetch_assoc($users)['date'];
 if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_user"]))) {
     $num = $_POST['number_of_halls'];
     $date = date("Y-m-d");
-    if ($last_updated == date("Y-m-d")) {
+    $alreadyRecordedEntries = mysqli_num_rows(mysqli_query($conn, "SELECT date FROM records_2 WHERE date = '$date'"));
+    if ($alreadyRecordedEntries > 0) {
         $error = true;
     } else {
         $query = mysqli_query($conn, "UPDATE halls SET count = '$num', date = '$date'");

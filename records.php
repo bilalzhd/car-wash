@@ -129,10 +129,10 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                             <?php mysqli_data_seek($records, 0); ?>
                             <th>Customer</th>
                             <?php
-                                $num_halls = mysqli_fetch_assoc($records);
-                                for ($i = 1; $i <= $num_halls['number_of_halls']; $i++) {
-                                    echo '<th>Hall ' . $i . '</th>';
-                                }
+                            $num_halls = mysqli_fetch_assoc($records);
+                            for ($i = 1; $i <= $num_halls['number_of_halls']; $i++) {
+                                echo '<th>Hall ' . $i . '</th>';
+                            }
                             ?>
                             <th>Date</th>
                             <th>Total</th>
@@ -166,7 +166,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                                         <?php
                                         $customers_query = mysqli_query($conn, "SELECT * FROM customers");
                                         while ($cus = mysqli_fetch_assoc($customers_query)) { ?>
-                                            <option <?php echo $customer_id == $cus['id'] ? "selected" : ""?> value="<?php echo $cus['id'] ?>"><?php echo $cus['name']?></option>
+                                            <option <?php echo $customer_id == $cus['id'] ? "selected" : "" ?> value="<?php echo $cus['id'] ?>"><?php echo $cus['name'] ?></option>
                                         <?php } ?>
                                     </select>
                                 </td>
@@ -174,14 +174,14 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                             for ($i = 1; $i <= $record['number_of_halls']; $i++) {
                                 $hall = $record['hall_' . $i];
                                 echo '<td>
-                                <input type="hidden" name="number_of_halls" class="editInput" value="'.$record['number_of_halls'].'">
+                                <input type="hidden" name="number_of_halls" class="editInput" value="' . $record['number_of_halls'] . '">
                                 <span class="editSpan hall_' . $i . '">' . $hall . '</span>
                                 <input class="editInput block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="number" name="hall_' . $i . '" id="hall_' . $i . '" required style="display: none" value="' . $hall . '">
                                 </td>';
                             }
                             echo '<td>
                             <span class="editSpan date">' . $record['date'] . '</span>
-                            <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="edit_date" id="edit_date" required value="'.$record['date'].'" style="display: none">
+                            <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="edit_date" id="edit_date" required value="' . $record['date'] . '" style="display: none">
                             </td>
                             <td>' . $total . '</td>';
                             if ($role == 0 || ($role == 2 && $record['date'] == $today_date)) {
@@ -200,6 +200,33 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                         }
                             ?>
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <?php
+                            $today_date = $_GET['date'];
+                            $records = mysqli_query($conn, "SELECT * FROM records_2 WHERE date = '$today_date'");
+                            $num_halls = mysqli_fetch_assoc($records)['number_of_halls'];
+                            $totalInHalls = array();
+                            for ($i = 1; $i <= $num_halls; $i++) {
+                                $result = mysqli_query($conn, "SELECT * FROM records_2 WHERE date = '$today_date'");
+                                $totalInHalls['hall_' . $i] = 0;
+                                while ($row = mysqli_fetch_assoc($result)) {
+                                    $totalInHalls['hall_' . $i] += $row['hall_' . $i];
+                                }
+                            }
+
+                            // Display hall totals in respective tfoot heading
+                            for ($i = 1; $i <= $num_halls; $i++) {
+                                echo '<th>' . $totalInHalls['hall_' . $i] . '</th>';
+                            }
+                            ?>
+                            <th></th>
+                            <th><?php echo $totalCars; ?></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+
                 </table>
             </div>
         </div>
@@ -311,13 +338,13 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                             console.log(response)
                             trObj.find(".editSpan.name").text(response.data.name);
                             trObj.find(".editSpan.date").text(response.data.date);
-                            for(let i = 1; i <= response.data.number_of_halls; i++) {
+                            for (let i = 1; i <= response.data.number_of_halls; i++) {
                                 trObj.find(`.editSpan.hall_${i}`).text(response.data[`hall_${i}`]);
                             }
 
                             trObj.find(".editInput.name").val(response.data.name);
                             trObj.find(".editInput.date").val(response.data.date);
-                            for(let i = 1; i <= response.data.number_of_halls; i++) {
+                            for (let i = 1; i <= response.data.number_of_halls; i++) {
                                 trObj.find(`.editSpan.hall_${i}`).val(response.data[`hall_${i}`]);
                             }
                             trObj.find(".editInput").hide();

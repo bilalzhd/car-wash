@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 08, 2023 at 04:56 PM
+-- Generation Time: Dec 09, 2023 at 11:07 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -124,7 +124,9 @@ CREATE TABLE `records_2` (
 INSERT INTO `records_2` (`id`, `hall_1`, `hall_2`, `hall_3`, `hall_4`, `hall_5`, `hall_6`, `hall_7`, `hall_8`, `hall_9`, `hall_10`, `number_of_halls`, `customer_id`, `customer_name`, `date`) VALUES
 (2, 10, 101, 10, 10, 0, 0, 0, 0, 0, 0, 4, 24, 'Customer Name', '2023-12-07'),
 (3, 2, 11, 10, 20, 0, 0, 0, 0, 0, 0, 4, 32, 'Customer Name', '2023-12-08'),
-(5, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 4, 33, 'Customer Name', '2023-12-08');
+(5, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 4, 33, 'Customer Name', '2023-12-08'),
+(6, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 4, 33, 'Customer Name', '2023-12-09'),
+(7, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 4, 32, 'Customer Name', '2023-12-09');
 
 -- --------------------------------------------------------
 
@@ -198,7 +200,7 @@ ALTER TABLE `records`
 -- AUTO_INCREMENT for table `records_2`
 --
 ALTER TABLE `records_2`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `users`
