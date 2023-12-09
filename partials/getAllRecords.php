@@ -1,10 +1,4 @@
 <?php
-// session_start();
-// if(!isset($_SESSION['user_id'])){
-//     exit();
-// }
-// getUser.php
-
 // Assuming you have a database connection
 include_once("./db_connect.php");
 

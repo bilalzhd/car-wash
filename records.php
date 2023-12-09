@@ -24,7 +24,7 @@ while ($car = mysqli_fetch_assoc($records)) {
     for ($i = 1; $i <= $car['number_of_halls']; $i++) {
         $total += $car['hall_' . $i];
     }
-    $totalCars += $total;
+    $totalCars = $total;
 }
 if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
     $customer = $_POST['edit_name'];

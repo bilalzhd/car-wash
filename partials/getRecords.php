@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["date"])) {
             for ($i = 1; $i <= $row['number_of_halls']; $i++) {
                 $total += $row['hall_' . $i];
             }
-            $totalRecords += $total;
+            $totalRecords = $total;
         };
 
         // Return the result as JSON

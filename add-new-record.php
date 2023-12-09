@@ -21,6 +21,9 @@ if ($role == 1) {
 if ($role == 2) {
     $manager = true;
 }
+if(isset($_GET['date']) && ($_GET['date'] != date("Y-m-d")) && $manager) {
+    header("Location: add-new-record.php?date=".date("Y-m-d"));
+}
 $customers = mysqli_query($conn, "SELECT * FROM customers");
 $number_of_halls = mysqli_fetch_assoc(mysqli_query($conn, "SELECT count from halls"))['count'];
 $submitted = false;
@@ -110,9 +113,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <?php
                         for ($i = 1; $i <= $number_of_halls; $i++) {
                             echo '<div class="sm:col-span-6">
-                            <label for="hall_'.$i.'" class="block text-xl font-medium leading-6 text-gray-900">Hall '.$i.'</label>
+                            <label for="hall_' . $i . '" class="block text-xl font-medium leading-6 text-gray-900">Hall ' . $i . '</label>
                             <div class="mt-2">
-                                <input class="block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="number" name="hall_'.$i.'" id="hall_'.$i.'" required placeholder="Number of cars">
+                                <input class="block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="number" name="hall_' . $i . '" id="hall_' . $i . '" required placeholder="Number of cars">
                             </div>
                         </div>';
                         };
@@ -130,11 +133,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         </div>
     </form>
-
-    <?php
-    if (!isset($_GET['date'])) {
-        echo '<script>
-            function getCurrentDate() {
+    <script>
+        function getCurrentDate() {
             const today = new Date();
             const year = today.getFullYear();
             let month = today.getMonth() + 1;
@@ -145,6 +145,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             return `${year}-${month}-${day}`;
         }
+    </script>
+    <?php
+    if (!isset($_GET['date']) && !$manager) {
+        echo '<script>
 
         // Set the default value for the date input
         document.getElementById("birthdate").value = getCurrentDate();
@@ -152,8 +156,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $date = date("Y-m-d", strtotime($_GET['date']));
         echo '<script>
-            const today = new Date("' . $date . '");
-            document.getElementById("birthdate").value = today.toISOString().split("T")[0];
+            const today_date = new Date("' . date("Y-m-d") . '");
+            document.getElementById("birthdate").value = today_date.toISOString().split("T")[0];
         </script>';
     }
 
@@ -161,10 +165,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo '<script>
         dateInput = document.getElementById("birthdate")
         hiddenDate = document.getElementById("hidden-date")
-            dateInput.value = getCurrentDate();
+            dateInput.value = "'.date("Y-m-d").'";
             dateInput.disabled = true;
             hiddenDate.disabled = false;
-            hiddenDate.value = getCurrentDate();
+            hiddenDate.value = "'.date("Y-m-d").'"
             </script>';
     }
     ?>
