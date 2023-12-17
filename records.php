@@ -2,7 +2,7 @@
 session_start();
 $submitted = false;
 $error = false;
-
+$no_records = false;
 $page_title = "All Records";
 $title = "All Record";
 include 'partials/head.php';
@@ -16,7 +16,7 @@ $today_date = $_GET['date'];
 // $records = mysqli_query($conn, "SELECT * FROM records");
 $records = mysqli_query($conn, "SELECT * FROM records_2 WHERE date = '$today_date'");
 if (mysqli_num_rows($records) < 1) {
-    header("Location: add-new-record.php?date=" . $today_date);
+    $no_records = true;
 }
 $totalCars = 0;
 $total = 0;
@@ -129,8 +129,10 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                             <?php mysqli_data_seek($records, 0); ?>
                             <th>Customer</th>
                             <?php
-                            $num_halls = mysqli_fetch_assoc($records);
-                            for ($i = 1; $i <= $num_halls['number_of_halls']; $i++) {
+
+                            $num_halls = !$no_records ? mysqli_fetch_assoc($records)['number_of_halls'] : mysqli_fetch_assoc(mysqli_query($conn, "SELECT count FROM halls"))['count'];
+
+                            for ($i = 1; $i <= $num_halls; $i++) {
                                 echo '<th>Hall ' . $i . '</th>';
                             }
                             ?>
@@ -138,7 +140,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                             <th>Total</th>
                             <?php
                             $today_date = date("Y-m-d");
-                            if ($role == 0 || ($role == 2 && $_GET['date'] == $today_date)) {
+                            if ($role == 0 || ($role == 2 && $_GET['date'] >= $today_date)) {
                                 echo '<th>Actions</th>';
                             }
                             ?>
@@ -147,45 +149,55 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                     <tbody>
                         <?php
                         mysqli_data_seek($records, 0);
-                        while ($record = mysqli_fetch_assoc($records)) {
-                            $total = 0;
-                            for ($i = 1; $i <= $record['number_of_halls']; $i++) {
-                                $total +=  $record['hall_' . $i];
-                            };
-                            $customer_id = $record['customer_id'];
-                            $customer = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM customers WHERE id='$customer_id'"));
-                            if ($customer && isset($customer['name'])) {
-                                $customer_name = $customer['name'];
-                            } else {
-                                $customer_name = $record['customer_name'];
-                            } ?>
-                            <tr id="<?php echo $record['id'] ?>" data-id="<?php echo $record['id'] ?>">
-                                <td>
-                                    <span class="editSpan name"><?php echo $customer_name ?></span>
-                                    <select name="edit_name" class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 editInput" id="edit_name" required style="display: none">
-                                        <?php
-                                        $customers_query = mysqli_query($conn, "SELECT * FROM customers");
-                                        while ($cus = mysqli_fetch_assoc($customers_query)) { ?>
-                                            <option <?php echo $customer_id == $cus['id'] ? "selected" : "" ?> value="<?php echo $cus['id'] ?>"><?php echo $cus['name'] ?></option>
-                                        <?php } ?>
-                                    </select>
-                                </td>
-                            <?php
-                            for ($i = 1; $i <= $record['number_of_halls']; $i++) {
-                                $hall = $record['hall_' . $i];
-                                echo '<td>
-                                <input type="hidden" name="number_of_halls" class="editInput" value="' . $record['number_of_halls'] . '">
-                                <span class="editSpan hall_' . $i . '">' . $hall . '</span>
-                                <input class="editInput block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="number" name="hall_' . $i . '" id="hall_' . $i . '" required style="display: none" value="' . $hall . '">
-                                </td>';
-                            }
-                            echo '<td>
-                            <span class="editSpan date">' . $record['date'] . '</span>
-                            <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="edit_date" id="edit_date" required value="' . $record['date'] . '" style="display: none">
-                            </td>
-                            <td>' . $total . '</td>';
-                            if ($role == 0 || ($role == 2 && $record['date'] == $today_date)) {
-                                echo '
+                        if (!$no_records) {
+                            while ($record = mysqli_fetch_assoc($records)) {
+                                $total = 0;
+                                for ($i = 1; $i <= $record['number_of_halls']; $i++) {
+                                    $total +=  $record['hall_' . $i];
+                                };
+                                $customer_id = $record['customer_id'];
+                                $customer = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM customers WHERE id='$customer_id'"));
+                                if ($customer && isset($customer['name'])) {
+                                    $customer_name = $customer['name'];
+                                } else {
+                                    $customer_name = $record['customer_name'];
+                                } ?>
+                                <tr id="<?php echo $record['id'] ?>" data-id="<?php echo $record['id'] ?>">
+                                    <td>
+                                        <span class="editSpan name"><?php echo $customer_name ?></span>
+                                        <select name="edit_name" class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 editInput" id="edit_name" required style="display: none">
+                                            <?php
+                                            $customers_query = mysqli_query($conn, "SELECT * FROM customers");
+                                            while ($cus = mysqli_fetch_assoc($customers_query)) { ?>
+                                                <option <?php echo $customer_id == $cus['id'] ? "selected" : "" ?> value="<?php echo $cus['id'] ?>"><?php echo $cus['name'] ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </td>
+                                    <?php
+                                    for ($i = 1; $i <= $num_halls; $i++) {
+                                        $hall = !$no_records ? $record['hall_' . $i] : 0;
+                                        echo '<td>
+                                                <input type="hidden" name="number_of_halls" class="editInput" value="' . $record['number_of_halls'] . '">
+                                                <span class="editSpan hall_' . $i . '">' . $hall . '</span>
+                                                <input class="editInput block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="number" name="hall_' . $i . '" id="hall_' . $i . '" required style="display: none" value="' . $hall . '">
+                                                </td>';
+                                    }
+                                    if($role == 2 && $record['date'] >= $today_date) {
+                                        echo '<td>
+                                        <span class="editSpan date">' . $record['date'] . '</span>
+                                        <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" style="display: none" value="' . $record['date'] . '" disabled id="edit_date">
+                                        <input type="hidden" class="editInput" name="edit_date" value="' . $record['date'] . '">
+                                        </td>';
+                                    } else {
+                                    echo '<td>
+                                    <span class="editSpan date">' . $record['date'] . '</span>
+                                    <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="edit_date" id="edit_date" required value="' . $record['date'] . '" style="display: none">
+                                    </td>';
+                                };
+
+                                    echo '<td>' . $total . '</td>';
+                                    if ($role == 0 || ($role == 2 && $record['date'] >= $today_date)) {
+                                        echo '
                                 <td class="w-1/4 flex whitespace-nowrap">
                                 <div class="flex space-x-2">
                                 <button data-id="' . $record['id'] . '" class="editBtn flex items-center hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full text-white px-4 py-2 rounded-lg">Edit</button>
@@ -194,10 +206,53 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                                 <button data-id="' . $record['id'] . '" class="confirmBtn flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg" style="display: none;">Confirm</button>
                                 <button data-id="' . $record['id'] . '" class="cancelBtn flex hover:bg-indigo-700 transition-all duration-300 bg-gray-500 w-full items-center text-white px-4 py-2 rounded-lg" style="display: none;">Cancel</button>
                                 </div>
-                            </td>
-                        </tr>';
+                                </td>
+                                </tr>';
+                                    }
+                                }
+                            } else {
+                                $customers = mysqli_query($conn, "SELECT * FROM customers");
+                                while ($customer = mysqli_fetch_assoc($customers)) {    ?>
+                                <tr>
+                                    <td>
+                                        <span class="editSpan name"><?php echo $customer['name'] ?></span>
+                                        <select name="edit_name" class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 editInput" id="edit_name" required style="display: none">
+                                            <?php
+                                            $customers_query = mysqli_query($conn, "SELECT * FROM customers");
+                                            while ($cus = mysqli_fetch_assoc($customers_query)) { ?>
+                                                <option <?php echo (isset($customer_id) && $customer_id == $cus['id']) ? "selected" : "" ?> value="<?php echo $cus['id'] ?>"><?php echo $cus['name'] ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </td>
+                            <?php
+                                    for ($i = 1; $i <= $num_halls; $i++) {
+                                        $hall = !$no_records  ? $record['hall_' . $i] : $i;
+                                        echo '<td>
+                                                <input type="hidden" name="number_of_halls" class="editInput" value="' . $num_halls . '">
+                                                <span class="editSpan hall_' . $i . '">' . 0 . '</span>
+                                                <input class="editInput block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="number" name="hall_' . $i . '" id="hall_' . $i . '" required style="display: none" value="0">
+                                                </td>';
+                                    }
+                                    echo '<td>
+                                            <span class="editSpan date">' . $_GET['date'] . '</span>
+                                            <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="edit_date" id="edit_date" required value="' . $_GET['date'] . '" style="display: none">
+                                            </td>
+                                            <td>' . $total . '</td>';
+                                    if ($role == 0 || ($role == 2 && $_GET['date'] >= $today_date)) {
+                                        echo '
+                                            <td class="w-1/4 flex whitespace-nowrap">
+                                            <div class="flex space-x-2">
+                                            <button data-id="' . (isset($record) ? $record['id'] : 0) . '" class="editBtn flex items-center hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full text-white px-4 py-2 rounded-lg">Edit</button>
+                                            <button data-id="' . (isset($record) ? $record['id'] : 0)  . '" class="deleteBtn flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg">Delete</button>
+                                            <button data-id="' . (isset($record) ? $record['id'] : 0 ) . '" class="saveBtn flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg" style="display: none;">Save</button>
+                                            <button data-id="' . (isset($record) ? $record['id'] : 0 ) . '" class="confirmBtn flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg" style="display: none;">Confirm</button>
+                                            <button data-id="' . (isset($record) ? $record['id'] : 0 ) . '" class="cancelBtn flex hover:bg-indigo-700 transition-all duration-300 bg-gray-500 w-full items-center text-white px-4 py-2 rounded-lg" style="display: none;">Cancel</button>
+                                            </div>
+                                        </td>
+                                    </tr>';
+                                    }
+                                }
                             }
-                        }
                             ?>
                     </tbody>
                     <tfoot>
@@ -206,7 +261,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                             <?php
                             $today_date = $_GET['date'];
                             $records = mysqli_query($conn, "SELECT * FROM records_2 WHERE date = '$today_date'");
-                            $num_halls = mysqli_fetch_assoc($records)['number_of_halls'];
+                            // $num_halls = mysqli_fetch_assoc($records)['number_of_halls'];
                             $totalInHalls = array();
                             for ($i = 1; $i <= $num_halls; $i++) {
                                 $result = mysqli_query($conn, "SELECT * FROM records_2 WHERE date = '$today_date'");
@@ -215,8 +270,6 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                                     $totalInHalls['hall_' . $i] += $row['hall_' . $i];
                                 }
                             }
-
-                            // Display hall totals in respective tfoot heading
                             for ($i = 1; $i <= $num_halls; $i++) {
                                 echo '<th>' . $totalInHalls['hall_' . $i] . '</th>';
                             }
@@ -235,183 +288,123 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
 
 <!-- edit popup -->
 
-<div class="hidden min-w-screen h-screen animated fadeIn faster  fixed  left-0 top-0 flex justify-center items-center inset-0 z-50 outline-none focus:outline-none bg-no-repeat bg-center bg-cover" id="edit-popup">
-    <div class="absolute bg-black opacity-80 inset-0 z-0"></div>
-    <div class="w-full  max-w-lg p-2 md:p-5 relative mx-auto my-auto rounded-xl shadow-lg  bg-white ">
-        <div class="">
-            <div class="p-5 flex-auto">
-                <div class="text-indigo-500 flex w-full flex-col items-center space-y-4">
-                    <i class="fa fa-pencil text-4xl"></i>
-                    <h3 class="text-4xl font-bold text-center">Edit Record</h3>
-                </div>
-                <form method="POST" id="edit_record_form" action="?date=<?php echo $_GET['date'] ?>" class="overflow-y-auto">
-                    <input type="hidden" id="user_id" name="user_id" value="">
-                    <input type="hidden" id="number_of_halls" name="number_of_halls" value="">
-                    <div class="max-w-5xl mx-auto border-gray-900/10 ">
-                        <div class="mt-10 grid gap-x-6 space-y-2 md:space-y-6">
-                            <div class="sm:col-span-12">
-                                <label for="name" class="block text-xl font-medium leading-6 text-gray-900">Customer</label>
-                                <div class="mt-2">
-                                    <select name="edit_name" class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" id="edit_name">
-                                        <?php
-                                        mysqli_data_seek($customers_query, 0);
-                                        while ($cus = mysqli_fetch_assoc($customers_query)) {
-                                            echo '<option value="' . $cus['id'] . '">' . $cus['name'] . '</option>';
-                                        }
-                                        ?>
-                                    </select>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
+<script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.editBtn').on('click', function() {
+            //hide edit span
+            $(this).closest("tr").find(".editSpan").hide();
 
-                                </div>
-                            </div>
-                            <?php
-                            for ($i = 1; $i <= 4; $i++) {
-                                echo '<div class="sm:col-span-6">
-                            <label for="hall_' . $i . '" class="block text-xl font-medium leading-6 text-gray-900">Hall ' . $i . '</label>
-                            <div class="mt-2">
-                                <input class="block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="number" name="hall_' . $i . '" id="hall_' . $i . '" required placeholder="Number of cars">
-                            </div>
-                        </div>';
-                            };
-                            ?>
-                            <div class="sm:col-span-12">
-                                <label for="date" class="block text-xl font-medium leading-6 text-gray-900">Date</label>
-                                <div class="mt-2">
-                                    <input class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="edit_date" id="edit_date" required>
-                                </div>
-                            </div>
-                        </div>
+            //show edit input
+            $(this).closest("tr").find(".editInput").show();
 
+            //hide edit button
+            $(this).closest("tr").find(".editBtn").hide();
 
-                    </div>
-                    <!--footer-->
-                    <div class="p-3  mt-2 text-center space-x-4 md:block">
-                        <button id="close-edit-popup" type="button" class="mb-2 md:mb-0 bg-white px-5 py-2 text-sm shadow-sm font-medium tracking-wider border text-gray-600 rounded-full hover:shadow-lg hover:bg-gray-100">
-                            Cancel
-                        </button>
-                        <button type="submit" id="edit_record" name="edit_record" class="mb-2 md:mb-0 bg-indigo-500 border-indigo-500 px-5 py-2 text-sm shadow-sm font-medium tracking-wider text-white rounded-full hover:shadow-lg hover:bg-indigo-700">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+            //hide delete button
+            $(this).closest("tr").find(".deleteBtn").hide();
 
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
-    <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('.editBtn').on('click', function() {
-                //hide edit span
-                $(this).closest("tr").find(".editSpan").hide();
+            //show save button
+            $(this).closest("tr").find(".saveBtn").show();
 
-                //show edit input
-                $(this).closest("tr").find(".editInput").show();
+            //show cancel button
+            $(this).closest("tr").find(".cancelBtn").show();
 
-                //hide edit button
-                $(this).closest("tr").find(".editBtn").hide();
+        });
 
-                //hide delete button
-                $(this).closest("tr").find(".deleteBtn").hide();
+        $('.saveBtn').on('click', function() {
+            $('#userData').css('opacity', '.5');
 
-                //show save button
-                $(this).closest("tr").find(".saveBtn").show();
-
-                //show cancel button
-                $(this).closest("tr").find(".cancelBtn").show();
-
-            });
-
-            $('.saveBtn').on('click', function() {
-                $('#userData').css('opacity', '.5');
-
-                var trObj = $(this).closest("tr");
-                var ID = $(this).closest("tr").attr('id');
-                var inputData = $(this).closest("tr").find(".editInput").serialize();
-                $.ajax({
-                    type: 'POST',
-                    url: 'partials/editRecord.php',
-                    dataType: "json",
-                    data: 'action=edit&id=' + ID + '&' + inputData,
-                    success: function(response) {
-                        if (response.status == 1) {
-                            console.log(response)
-                            trObj.find(".editSpan.name").text(response.data.name);
-                            trObj.find(".editSpan.date").text(response.data.date);
-                            for (let i = 1; i <= response.data.number_of_halls; i++) {
-                                trObj.find(`.editSpan.hall_${i}`).text(response.data[`hall_${i}`]);
-                            }
-
-                            trObj.find(".editInput.name").val(response.data.name);
-                            trObj.find(".editInput.date").val(response.data.date);
-                            for (let i = 1; i <= response.data.number_of_halls; i++) {
-                                trObj.find(`.editSpan.hall_${i}`).val(response.data[`hall_${i}`]);
-                            }
-                            trObj.find(".editInput").hide();
-                            trObj.find(".editSpan").show();
-                            trObj.find(".saveBtn").hide();
-                            trObj.find(".cancelBtn").hide();
-                            trObj.find(".editBtn").show();
-                            trObj.find(".deleteBtn").show();
-                            window.location.reload();
-                        } else {
-                            alert(response.msg);
+            var trObj = $(this).closest("tr");
+            var ID = $(this).closest("tr").attr('id');
+            var inputData = $(this).closest("tr").find(".editInput").serialize();
+            $.ajax({
+                type: 'POST',
+                url: 'partials/editRecord.php',
+                dataType: "json",
+                data: 'action=edit&id=' + ID + '&' + inputData,
+                success: function(response) {
+                    if (response.status == 1) {
+                        console.log(response)
+                        trObj.find(".editSpan.name").text(response.data.name);
+                        trObj.find(".editSpan.date").text(response.data.date);
+                        for (let i = 1; i <= response.data.number_of_halls; i++) {
+                            trObj.find(`.editSpan.hall_${i}`).text(response.data[`hall_${i}`]);
                         }
-                        $('#userData').css('opacity', '');
-                    }
-                });
-            });
 
-            $('.cancelBtn').on('click', function() {
-                //hide & show buttons
-                $(this).closest("tr").find(".saveBtn").hide();
-                $(this).closest("tr").find(".cancelBtn").hide();
-                $(this).closest("tr").find(".confirmBtn").hide();
-                $(this).closest("tr").find(".editBtn").show();
-                $(this).closest("tr").find(".deleteBtn").show();
-
-                //hide input and show values
-                $(this).closest("tr").find(".editInput").hide();
-                $(this).closest("tr").find(".editSpan").show();
-            });
-
-            $('.deleteBtn').on('click', function() {
-                //hide edit & delete button
-                $(this).closest("tr").find(".editBtn").hide();
-                $(this).closest("tr").find(".deleteBtn").hide();
-
-                //show confirm & cancel button
-                $(this).closest("tr").find(".confirmBtn").show();
-                $(this).closest("tr").find(".cancelBtn").show();
-            });
-
-            $('.confirmBtn').on('click', function() {
-                $('#userData').css('opacity', '.5');
-
-                var trObj = $(this).closest("tr");
-                var ID = $(this).closest("tr").attr('id');
-                $.ajax({
-                    type: 'POST',
-                    url: 'partials/deleteRecord.php',
-                    dataType: "json",
-                    data: 'action=delete&id=' + ID,
-                    success: function(response) {
-                        if (response.status == 1) {
-                            trObj.remove();
-                        } else {
-                            trObj.find(".confirmBtn").hide();
-                            trObj.find(".cancelBtn").hide();
-                            trObj.find(".editBtn").show();
-                            trObj.find(".deleteBtn").show();
-                            alert(response.msg);
+                        trObj.find(".editInput.name").val(response.data.name);
+                        trObj.find(".editInput.date").val(response.data.date);
+                        for (let i = 1; i <= response.data.number_of_halls; i++) {
+                            trObj.find(`.editSpan.hall_${i}`).val(response.data[`hall_${i}`]);
                         }
-                        $('#userData').css('opacity', '');
+                        trObj.find(".editInput").hide();
+                        trObj.find(".editSpan").show();
+                        trObj.find(".saveBtn").hide();
+                        trObj.find(".cancelBtn").hide();
+                        trObj.find(".editBtn").show();
+                        trObj.find(".deleteBtn").show();
+                        window.location.reload();
+                    } else {
+                        alert(response.msg);
                     }
-                });
+                    $('#userData').css('opacity', '');
+                }
             });
         });
-    </script>
-    <!-- <script>
+
+        $('.cancelBtn').on('click', function() {
+            //hide & show buttons
+            $(this).closest("tr").find(".saveBtn").hide();
+            $(this).closest("tr").find(".cancelBtn").hide();
+            $(this).closest("tr").find(".confirmBtn").hide();
+            $(this).closest("tr").find(".editBtn").show();
+            $(this).closest("tr").find(".deleteBtn").show();
+
+            //hide input and show values
+            $(this).closest("tr").find(".editInput").hide();
+            $(this).closest("tr").find(".editSpan").show();
+        });
+
+        $('.deleteBtn').on('click', function() {
+            //hide edit & delete button
+            $(this).closest("tr").find(".editBtn").hide();
+            $(this).closest("tr").find(".deleteBtn").hide();
+
+            //show confirm & cancel button
+            $(this).closest("tr").find(".confirmBtn").show();
+            $(this).closest("tr").find(".cancelBtn").show();
+        });
+
+        $('.confirmBtn').on('click', function() {
+            $('#userData').css('opacity', '.5');
+
+            var trObj = $(this).closest("tr");
+            var ID = $(this).closest("tr").attr('id');
+            $.ajax({
+                type: 'POST',
+                url: 'partials/deleteRecord.php',
+                dataType: "json",
+                data: 'action=delete&id=' + ID,
+                success: function(response) {
+                    if (response.status == 1) {
+                        trObj.remove();
+                    } else {
+                        trObj.find(".confirmBtn").hide();
+                        trObj.find(".cancelBtn").hide();
+                        trObj.find(".editBtn").show();
+                        trObj.find(".deleteBtn").show();
+                        alert(response.msg);
+                    }
+                    $('#userData').css('opacity', '');
+                }
+            });
+        });
+    });
+</script>
+<!-- <script>
         let minDate, maxDate;
 
         // Custom filtering function which will search data in column four between two values
@@ -446,24 +439,38 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
             el.addEventListener('change', () => table.draw());
         });
     </script> -->
-    <script>
-        let table = new DataTable('#example');
-        // Get the current date in the format "YYYY-MM-DD"
-        function getCurrentDate() {
-            const today = new Date();
-            const year = today.getFullYear();
-            let month = today.getMonth() + 1;
-            let day = today.getDate();
+<script>
+    let table = new DataTable('#example');
+    // Get the current date in the format "YYYY-MM-DD"
+    function getCurrentDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        let month = today.getMonth() + 1;
+        let day = today.getDate();
 
-            // Ensure month and day are always two digits
-            month = month < 10 ? '0' + month : month;
-            day = day < 10 ? '0' + day : day;
+        // Ensure month and day are always two digits
+        month = month < 10 ? '0' + month : month;
+        day = day < 10 ? '0' + day : day;
 
-            return `${year}-${month}-${day}`;
+        return `${year}-${month}-${day}`;
+    }
+
+    // Set the default value for the date input
+    // document.getElementById('min').value = "<?php echo $_GET['date'] ?>";
+    // document.getElementById('max').value = "<?php echo $_GET['date'] ?>";
+</script>
+<script src="functions.js"></script>
+
+<?php 
+    if($no_records) {
+        $date = $_GET['date'];
+        mysqli_data_seek($customers_query, 0);
+        while ($customer = mysqli_fetch_assoc($customers_query)) {
+            $customer_id = $customer['id'];
+            $customer_name = $customer['name'];
+            $result = mysqli_query($conn, "INSERT INTO `records_2` (`hall_1`, `hall_2`, `hall_3`, `hall_4`, `hall_5`, `hall_6`, `hall_7`, `hall_8`, `hall_9`, `hall_10`, `number_of_halls`, `customer_id`, `customer_name`, `date`) VALUES ('0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '$num_halls', '$customer_id', '$customer_name', '$date');");
         }
+        echo "<script>window.location.reload()</script>";
+    }
+?>
 
-        // Set the default value for the date input
-        // document.getElementById('min').value = "<?php echo $_GET['date'] ?>";
-        // document.getElementById('max').value = "<?php echo $_GET['date'] ?>";
-    </script>
-    <script src="functions.js"></script>

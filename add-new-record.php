@@ -21,8 +21,8 @@ if ($role == 1) {
 if ($role == 2) {
     $manager = true;
 }
-if(isset($_GET['date']) && ($_GET['date'] != date("Y-m-d")) && $manager) {
-    header("Location: add-new-record.php?date=".date("Y-m-d"));
+if (isset($_GET['date']) && ($_GET['date'] != date("Y-m-d")) && $manager) {
+    header("Location: add-new-record.php?date=" . date("Y-m-d"));
 }
 $customers = mysqli_query($conn, "SELECT * FROM customers");
 $number_of_halls = mysqli_fetch_assoc(mysqli_query($conn, "SELECT count from halls"))['count'];
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     <div class="mt-10 grid gap-x-6 gap-y-4 px-4">
                         <div class="sm:col-span-12">
-                            <label for="first-name" class="block text-xl font-medium leading-6 text-gray-900">Date</label>
+                            <label for="first-name" class="block text-xl font-m um leading-6 text-gray-900">Date</label>
                             <div class="mt-2">
                                 <input type="date" name="date" id="birthdate" autocomplete="given-name" class="block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" required>
                                 <input type="hidden" name="date" id="hidden-date" disabled>
@@ -115,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             echo '<div class="sm:col-span-6">
                             <label for="hall_' . $i . '" class="block text-xl font-medium leading-6 text-gray-900">Hall ' . $i . '</label>
                             <div class="mt-2">
-                                <input class="block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="number" name="hall_' . $i . '" id="hall_' . $i . '" required placeholder="Number of cars">
+                                <input class="block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="number" name="hall_' . $i . '" id="hall_' . $i . '"  placeholder="Number of cars">
                             </div>
                         </div>';
                         };
@@ -165,10 +165,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo '<script>
         dateInput = document.getElementById("birthdate")
         hiddenDate = document.getElementById("hidden-date")
-            dateInput.value = "'.date("Y-m-d").'";
+            dateInput.value = "' . date("Y-m-d") . '";
             dateInput.disabled = true;
             hiddenDate.disabled = false;
-            hiddenDate.value = "'.date("Y-m-d").'"
+            hiddenDate.value = "' . date("Y-m-d") . '"
             </script>';
     }
     ?>
