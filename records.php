@@ -149,7 +149,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                     <tbody>
                         <?php
                         mysqli_data_seek($records, 0);
-                        if (!$no_records) {
+                        // if (!$no_records) {
                             while ($record = mysqli_fetch_assoc($records)) {
                                 $total = 0;
                                 for ($i = 1; $i <= $record['number_of_halls']; $i++) {
@@ -210,50 +210,51 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                                 </tr>';
                                     }
                                 }
-                            } else {
-                                $customers = mysqli_query($conn, "SELECT * FROM customers");
-                                while ($customer = mysqli_fetch_assoc($customers)) {    ?>
-                                <tr>
-                                    <td>
-                                        <span class="editSpan name"><?php echo $customer['name'] ?></span>
-                                        <select name="edit_name" class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 editInput" id="edit_name" required style="display: none">
-                                            <?php
-                                            $customers_query = mysqli_query($conn, "SELECT * FROM customers");
-                                            while ($cus = mysqli_fetch_assoc($customers_query)) { ?>
-                                                <option <?php echo (isset($customer_id) && $customer_id == $cus['id']) ? "selected" : "" ?> value="<?php echo $cus['id'] ?>"><?php echo $cus['name'] ?></option>
-                                            <?php } ?>
-                                        </select>
-                                    </td>
-                            <?php
-                                    for ($i = 1; $i <= $num_halls; $i++) {
-                                        $hall = !$no_records  ? $record['hall_' . $i] : $i;
-                                        echo '<td>
-                                                <input type="hidden" name="number_of_halls" class="editInput" value="' . $num_halls . '">
-                                                <span class="editSpan hall_' . $i . '">' . 0 . '</span>
-                                                <input class="editInput block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="number" name="hall_' . $i . '" id="hall_' . $i . '" required style="display: none" value="0">
-                                                </td>';
-                                    }
-                                    echo '<td>
-                                            <span class="editSpan date">' . $_GET['date'] . '</span>
-                                            <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="edit_date" id="edit_date" required value="' . $_GET['date'] . '" style="display: none">
-                                            </td>
-                                            <td>' . $total . '</td>';
-                                    if ($role == 0 || ($role == 2 && $_GET['date'] >= $today_date)) {
-                                        echo '
-                                            <td class="w-1/4 flex whitespace-nowrap">
-                                            <div class="flex space-x-2">
-                                            <button data-id="' . (isset($record) ? $record['id'] : 0) . '" class="editBtn flex items-center hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full text-white px-4 py-2 rounded-lg">Edit</button>
-                                            <button data-id="' . (isset($record) ? $record['id'] : 0)  . '" class="deleteBtn flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg">Delete</button>
-                                            <button data-id="' . (isset($record) ? $record['id'] : 0 ) . '" class="saveBtn flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg" style="display: none;">Save</button>
-                                            <button data-id="' . (isset($record) ? $record['id'] : 0 ) . '" class="confirmBtn flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg" style="display: none;">Confirm</button>
-                                            <button data-id="' . (isset($record) ? $record['id'] : 0 ) . '" class="cancelBtn flex hover:bg-indigo-700 transition-all duration-300 bg-gray-500 w-full items-center text-white px-4 py-2 rounded-lg" style="display: none;">Cancel</button>
-                                            </div>
-                                        </td>
-                                    </tr>';
-                                    }
-                                }
-                            }
-                            ?>
+                            // } else {
+                            //     $customers = mysqli_query($conn, "SELECT * FROM customers");
+                            //     while ($customer = mysqli_fetch_assoc($customers)) {    ?>
+                            <!--     <tr>
+                            //         <td>
+                            //             <span class="editSpan name"><?php echo $customer['name'] ?></span>
+                            //             <select name="edit_name" class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 editInput" id="edit_name" required style="display: none">
+                            //                 <?php
+                            //                 $customers_query = mysqli_query($conn, "SELECT * FROM customers");
+                            //                 while ($cus = mysqli_fetch_assoc($customers_query)) { ?>
+                            //                     <option <?php 
+                            // echo (isset($customer_id) && $customer_id == $cus['id']) ? "selected" : "" ?> value="<?php echo $cus['id'] ?>"><?php // echo $cus['name'] ?></option>
+                            //                 <?php // } ?>
+                            //             </select>
+                            //         </td>
+                             <?php
+                            //         for ($i = 1; $i <= $num_halls; $i++) {
+                            //             $hall = !$no_records  ? $record['hall_' . $i] : $i;
+                            //             echo '<td>
+                            //                     <input type="hidden" name="number_of_halls" class="editInput" value="' . $num_halls . '">
+                            //                     <span class="editSpan hall_' . $i . '">' . 0 . '</span>
+                            //                     <input class="editInput block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="number" name="hall_' . $i . '" id="hall_' . $i . '" required style="display: none" value="0">
+                            //                     </td>';
+                            //         }
+                            //         echo '<td>
+                            //                 <span class="editSpan date">' . $_GET['date'] . '</span>
+                            //                 <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="edit_date" id="edit_date" required value="' . $_GET['date'] . '" style="display: none">
+                            //                 </td>
+                            //                 <td>' . $total . '</td>';
+                            //         if ($role == 0 || ($role == 2 && $_GET['date'] >= $today_date)) {
+                            //             echo '
+                            //                 <td class="w-1/4 flex whitespace-nowrap">
+                            //                 <div class="flex space-x-2">
+                            //                 <button data-id="' . (isset($record) ? $record['id'] : 0) . '" class="editBtn flex items-center hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full text-white px-4 py-2 rounded-lg">Edit</button>
+                            //                 <button data-id="' . (isset($record) ? $record['id'] : 0)  . '" class="deleteBtn flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg">Delete</button>
+                            //                 <button data-id="' . (isset($record) ? $record['id'] : 0 ) . '" class="saveBtn flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg" style="display: none;">Save</button>
+                            //                 <button data-id="' . (isset($record) ? $record['id'] : 0 ) . '" class="confirmBtn flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg" style="display: none;">Confirm</button>
+                            //                 <button data-id="' . (isset($record) ? $record['id'] : 0 ) . '" class="cancelBtn flex hover:bg-indigo-700 transition-all duration-300 bg-gray-500 w-full items-center text-white px-4 py-2 rounded-lg" style="display: none;">Cancel</button>
+                            //                 </div>
+                            //             </td>
+                            //         </tr>';
+                            //         }
+                            //     }
+                            // }
+                            // ?>
                     </tbody>
                     <tfoot>
                         <tr>
@@ -464,7 +465,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
 <?php 
     if($no_records) {
         $date = $_GET['date'];
-        mysqli_data_seek($customers_query, 0);
+        $customers_query = mysqli_query($conn, "SELECT * FROM customers");
         while ($customer = mysqli_fetch_assoc($customers_query)) {
             $customer_id = $customer['id'];
             $customer_name = $customer['name'];
