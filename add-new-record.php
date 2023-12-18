@@ -38,11 +38,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $hallValues[] = $_POST["hall_$i"];
     }
 
-    $entryAlreadyRecorded = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM records_2 WHERE customer_id = '$customer' AND date = '$date'"));
+    $entryAlreadyRecordedQuery = mysqli_query($conn, "SELECT * FROM records_2 WHERE customer_id = '$customer' AND date = '$date'");
+    $entryAlreadyRecorded = mysqli_num_rows($entryAlreadyRecordedQuery);
+    $entryAlreadyRecordedTotal = 0;
+    $entry = mysqli_fetch_assoc($entryAlreadyRecordedQuery);
+    if ($entryAlreadyRecorded) {
+        for ($i = 1; $i <= $entry['number_of_halls']; $i++) {
+            $entryAlreadyRecordedTotal += $entry['hall_' . $i];
+        }
+    }
 
 
-    if (!$entryAlreadyRecorded) {
-        // Build the SQL query dynamically based on the number of halls
+
+    if (!$entryAlreadyRecorded && $entryAlreadyRecordedTotal > 0) {
         $query = "INSERT INTO records_2 (number_of_halls, customer_id, customer_name, date";
         for ($i = 1; $i <= $number_of_halls; $i++) {
             $query .= ", hall_$i";
@@ -60,6 +68,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             $error = true;
         }
+        $customers = mysqli_query($conn, "SELECT * FROM customers WHERE id != '$customer'");
+        while ($customer = mysqli_fetch_assoc($customers)) {
+            $customer_id = $customer['id'];
+            $customer_name = $customer['name'];
+            $other_query = mysqli_query($conn, "INSERT INTO `records_2` (`hall_1`, `hall_2`, `hall_3`, `hall_4`, `hall_5`, `hall_6`, `hall_7`, `hall_8`, `hall_9`, `hall_10`, `number_of_halls`, `customer_id`, `customer_name`, `date`) VALUES ('0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '$number_of_halls', '$customer_id', '$customer_name', '$date')");
+        }
+    } else if ($entryAlreadyRecorded && $entryAlreadyRecordedTotal == 0) {
+        $id = $entry['id'];
+        $query = "UPDATE records_2 SET ";
+        for ($i = 1; $i <= $number_of_halls; $i++) {
+            $_hall = $hallValues[($i - 1)];
+            $query .= "hall_$i = '$_hall'";
+            if ($i < $number_of_halls) {
+                $query .= ", ";
+            }
+        }
+        $query .= " WHERE id = '$id'";
+        $result = mysqli_query($conn, $query);
     } else {
         $error = true;
     }

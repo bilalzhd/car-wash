@@ -254,8 +254,8 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                             //         }
                             //     }
                             // }
-                            // ?>
-                    </tbody>
+                            // ?>-->  
+                    </tbody> 
                     <tfoot>
                         <tr>
                             <th></th>
