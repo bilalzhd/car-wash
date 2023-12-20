@@ -28,9 +28,11 @@ $customers = mysqli_query($conn, "SELECT * FROM customers");
 $number_of_halls = mysqli_fetch_assoc(mysqli_query($conn, "SELECT count from halls"))['count'];
 $submitted = false;
 $error = false;
+$already_recorded_error = false;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $date = $_POST['date'];
     $customer = $_POST['customer'];
+    $customer_name = mysqli_fetch_assoc(mysqli_query($conn, "SELECT name FROM customers WHERE id = '$customer'"))['name'];
     $number_of_halls = $_POST['number_of_halls'];
 
     $hallValues = [];
@@ -39,23 +41,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     $entryAlreadyRecordedQuery = mysqli_query($conn, "SELECT * FROM records_2 WHERE customer_id = '$customer' AND date = '$date'");
+    $daysTotal = mysqli_query($conn, "SELECT * FROM records_2 WHERE date = '$date'");
     $entryAlreadyRecorded = mysqli_num_rows($entryAlreadyRecordedQuery);
     $entryAlreadyRecordedTotal = 0;
+    $overallTotal = 0;
     $entry = mysqli_fetch_assoc($entryAlreadyRecordedQuery);
-    if ($entryAlreadyRecorded) {
-        for ($i = 1; $i <= $entry['number_of_halls']; $i++) {
-            $entryAlreadyRecordedTotal += $entry['hall_' . $i];
+    if($entryAlreadyRecorded) {
+        for($i = 1; $i < $number_of_halls; $i++) {
+            $entryAlreadyRecordedTotal += $entry['hall_'.$i];
+        }
+    }
+
+    if ($entryAlreadyRecorded || $entryAlreadyRecordedTotal < 1) {
+        while ($entryTotal = mysqli_fetch_assoc($daysTotal)) {
+            for ($i = 1; $i <= $entryTotal['number_of_halls']; $i++) {
+                $overallTotal += $entryTotal['hall_' . $i];
+            }
         }
     }
 
 
 
-    if (!$entryAlreadyRecorded && $entryAlreadyRecordedTotal > 0) {
+    if (!$entryAlreadyRecorded) {
         $query = "INSERT INTO records_2 (number_of_halls, customer_id, customer_name, date";
         for ($i = 1; $i <= $number_of_halls; $i++) {
             $query .= ", hall_$i";
         }
-        $query .= ") VALUES ('$number_of_halls', '$customer', 'Customer Name', '$date'";
+        $query .= ") VALUES ('$number_of_halls', '$customer', '$customer_name', '$date'";
         foreach ($hallValues as $value) {
             $query .= ", '$value'";
         }
@@ -68,11 +80,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             $error = true;
         }
-        $customers = mysqli_query($conn, "SELECT * FROM customers WHERE id != '$customer'");
-        while ($customer = mysqli_fetch_assoc($customers)) {
-            $customer_id = $customer['id'];
-            $customer_name = $customer['name'];
-            $other_query = mysqli_query($conn, "INSERT INTO `records_2` (`hall_1`, `hall_2`, `hall_3`, `hall_4`, `hall_5`, `hall_6`, `hall_7`, `hall_8`, `hall_9`, `hall_10`, `number_of_halls`, `customer_id`, `customer_name`, `date`) VALUES ('0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '$number_of_halls', '$customer_id', '$customer_name', '$date')");
+        if ($overallTotal < 1 && $date >= date("Y-m-d")) {
+            $customers = mysqli_query($conn, "SELECT * FROM customers WHERE id != '$customer'");
+            while ($customer = mysqli_fetch_assoc($customers)) {
+                $customer_id = $customer['id'];
+                $customer_name = $customer['name'];
+                $other_query = mysqli_query($conn, "INSERT INTO `records_2` (`hall_1`, `hall_2`, `hall_3`, `hall_4`, `hall_5`, `hall_6`, `hall_7`, `hall_8`, `hall_9`, `hall_10`, `number_of_halls`, `customer_id`, `customer_name`, `date`) VALUES ('0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '$number_of_halls', '$customer_id', '$customer_name', '$date')");
+            }
         }
     } else if ($entryAlreadyRecorded && $entryAlreadyRecordedTotal == 0) {
         $id = $entry['id'];
@@ -86,14 +100,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         $query .= " WHERE id = '$id'";
         $result = mysqli_query($conn, $query);
+        if ($result) {
+            $submitted = true;
+        }
     } else {
-        $error = true;
+        $already_recorded_error = true;
     }
 }
 ?>
 <?php include("./partials/header.php") ?>
 
-<?php if ($submitted || $error) { ?>
+<?php if ($submitted || $error || $already_recorded_error) { ?>
     <div class="<?php echo $submitted ? 'bg-green-500' : 'bg-red-500' ?> rounded-b text-white px-4 py-3 shadow-md text-xl" role="alert">
         <div class="flex items-center">
             <div class="py-1 rounded-full border-2 p-1 border-white">
@@ -101,7 +118,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 ?>
             </div>
             <div>
-                <p class="mx-4"><?php echo $error ? "There was an error while adding the customer, try again later, or contact your developer." : "Your record has been added successfully!" ?></p>
+                <p class="mx-4"><?php
+                                if ($error) {
+                                    echo "There was an error while adding the customer, try again later, or contact your developer.";
+                                } else if ($already_recorded_error) {
+                                    echo "There is already an entry recorded for the customer on this date, try editing from the table.";
+                                } else {
+                                    echo "Your record has been added successfully!";
+                                } ?>
+                </p>
             </div>
         </div>
     </div>
@@ -175,7 +200,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php
     if (!isset($_GET['date']) && !$manager) {
         echo '<script>
-
         // Set the default value for the date input
         document.getElementById("birthdate").value = getCurrentDate();
     </script>';

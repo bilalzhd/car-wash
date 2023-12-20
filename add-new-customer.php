@@ -27,6 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
     $phone = $_POST['phone'];
 
     $query = mysqli_query($conn, "INSERT INTO customers (name, phone) VALUES ('$name', '$phone')");
+    $customer_id = mysqli_insert_id($conn);
+    $num_halls = mysqli_fetch_assoc(mysqli_query($conn, "SELECT count FROM halls"))['count'];
+    $records_query = "INSERT INTO `records_2` (`hall_1`, `hall_2`, `hall_3`, `hall_4`, `hall_5`, `hall_6`, `hall_7`, `hall_8`, `hall_9`, `hall_10`, `number_of_halls`, `customer_id`, `customer_name`, `date`) VALUES ('0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '$num_halls', '$customer_id', '$name', current_timestamp());";
+    $records_result = mysqli_query($conn, $records_query);
     if ($query) {
         $submitted = true;
     } else {
