@@ -202,7 +202,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_user"]))) {
                         d.value = data.date;
                     })
                     num.value = data.count;
-                    
+
                 })
                 .catch(error => console.error('Error:', error));
         });
@@ -229,15 +229,14 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_user"]))) {
 
                     if (response.ok) {
                         const result = await response.json();
-
                         if (result.status == 1) {
                             const dataTable = $('#example').DataTable();
                             const rowIndex = dataTable.row(`[data-id="${date}"]`).index();
                             dataTable.row(rowIndex).remove().draw();
                         } else {
-                            console.error(response.msg);
+                            alert(result.msg)
+                            console.error(result.msg);
                         }
-
                     } else {
                         // Handle HTTP error
                         console.error(`HTTP error: ${response.status}`);

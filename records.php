@@ -163,11 +163,25 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                     <tbody>
                         <?php
                         // mysqli_data_seek($records, 0);
-                        $customers = mysqli_query($conn, "SELECT * FROM customers WHERE timestamp <= '$today_date'");
-                        while ($customer = mysqli_fetch_assoc($customers)) {
-                            $customer_id = $customer['id'];
-                            $customer_name = $customer['name'];
-                            $date = $_GET['date'];
+                        $date = $_GET['date'];
+                        $query = "SELECT 
+                        c.id AS customer_id,
+                        c.name AS customer_name,";
+                        for($i=1; $i<$num_halls; $i++) {
+                            $query .= "r.hall_".$i.",";
+                        };
+                        $query .= "r.number_of_halls,
+                        r.date
+                    FROM customers c
+                    LEFT JOIN records_2 r ON c.id = r.customer_id AND r.date = '$date'
+                    WHERE c.timestamp <= '$date' AND (c.delete_on IS NULL OR c.delete_on >= '$date');
+                    ";
+                    // $customers = mysqli_query($conn, "SELECT * FROM customers WHERE timestamp <= '$date' AND delete_on <= '$date'");
+                    $customers = mysqli_query($conn,$query);
+                    while ($customer = mysqli_fetch_assoc($customers)) {
+                            // echo var_dump($customer);
+                            $customer_id = $customer['customer_id'];
+                            $customer_name = $customer['customer_name'];
                             $records = mysqli_query($conn, "SELECT * FROM records_2 WHERE customer_id = $customer_id AND date = '$date'");
                             $total = 0;
                             $record = mysqli_fetch_assoc($records);
@@ -180,7 +194,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                                     <span class="editSpan name"><?php echo $customer_name ?></span>
                                     <select name="edit_name" class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 editInput" id="edit_name" required style="display: none">
                                         <?php
-                                        $customers_query = mysqli_query($conn, "SELECT * FROM customers");
+                                        $customers_query = mysqli_query($conn, "SELECT * FROM customers WHERE delete_on <= '$date'");
                                         while ($cus = mysqli_fetch_assoc($customers_query)) { ?>
                                             <option <?php echo $customer_id == $cus['id'] ? "selected" : "" ?> value="<?php echo $cus['id'] ?>"><?php echo $cus['name'] ?></option>
                                         <?php } ?>
@@ -229,11 +243,10 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                         <tr>
                             <th></th>
                             <?php
-                            $today_date = $_GET['date'];
-                            $records = mysqli_query($conn, "SELECT * FROM records_2 WHERE date = '$today_date'");
+                            $records = mysqli_query($conn, "SELECT * FROM records_2 WHERE date = '$date'");
                             $totalInHalls = array();
                             for ($i = 1; $i <= $num_halls; $i++) {
-                                $result = mysqli_query($conn, "SELECT * FROM records_2 WHERE date = '$today_date'");
+                                $result = mysqli_query($conn, "SELECT * FROM records_2 WHERE date = '$date'");
                                 $totalInHalls['hall_' . $i] = 0;
                                 while ($row = mysqli_fetch_assoc($result)) {
                                     $totalInHalls['hall_' . $i] += $row['hall_' . $i];

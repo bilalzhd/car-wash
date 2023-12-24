@@ -7,11 +7,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $customer_query = mysqli_query($conn, "SELECT name FROM customers WHERE id = '$user_id'");
     $customer_data = mysqli_fetch_assoc($customer_query);
     $customer_name = $customer_data['name'];
-
-    $delete_customer_query = mysqli_query($conn, "DELETE FROM customers WHERE id = '$user_id'");
+    $date = date("Y-m-d");
+    // $delete_customer_query = mysqli_query($conn, "DELETE FROM customers WHERE id = '$user_id'");
+    $delete_customer_query = mysqli_query($conn, "UPDATE customers SET delete_on = '$date', deleted = '1' WHERE id='$user_id'");
     
     // Update records with the customer name before deletion
-    $update_records_query = mysqli_query($conn, "UPDATE records SET customer_name = '$customer_name' WHERE customer_id = '$user_id'");
+    $update_records_query = mysqli_query($conn, "UPDATE records_2 SET customer_name = '$customer_name' WHERE customer_id = '$user_id'");
 
 
 

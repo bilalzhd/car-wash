@@ -3,17 +3,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $date = $_POST['date'];
     include_once("./db_connect.php");
 
-
-    $delete_hall_query = mysqli_query($conn, "DELETE FROM halls WHERE date = '$date'");
-
-
-    if ($delete_hall_query) {
-        echo json_encode(["status" => 1, "msg" => "Customer has been deleted successfully"]);
+    $checkHalls = mysqli_query($conn, "SELECT COUNT(*) FROM halls");
+    if(mysqli_num_rows($checkHalls) > 1) {
+        $delete_hall_query = mysqli_query($conn, "DELETE FROM halls WHERE date = '$date'");
+        if ($delete_hall_query) {
+            echo json_encode(["status" => 1, "msg" => "Customer has been deleted successfully"]);
+        } else {
+            echo json_encode(["status" => 0, "msg" => "There has been an error deleting the customer"]);
+        }
     } else {
-        echo json_encode(["status" => 0, "msg" => "There has been an error deleting the customer"]);
+        echo json_encode(["status" => 0, "msg" => "There must have atleast one entry for halls"]);
     }
 
     mysqli_close($conn);
+
 } else {
     echo json_encode(["status" => 0, "msg" => "There has been an error deleting the customer"]);
 }

@@ -1,7 +1,7 @@
 <?php
 session_start();
-$page_title = "Add New Customer";
-$title = "Add New Customer";
+$page_title = "Customers";
+$title = "Customers";
 include 'partials/head.php';
 include 'partials/db_connect.php'; ?>
 
@@ -22,36 +22,22 @@ if ($role != 0) {
 <?php
 $submitted = false;
 $error = false;
+$date = date("Y-m-d");
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
     $name = $_POST['name'];
     $phone = $_POST['phone'];
-    $date = date("Y-m-d");
-    $query = mysqli_query($conn, "INSERT INTO customers (name, phone) VALUES ('$name', '$phone')");
+    $timestamp = $_POST['timestamp'];
+    $query = mysqli_query($conn, "INSERT INTO customers (name, phone, timestamp) VALUES ('$name', '$phone', '$timestamp')");
     $customer_id = mysqli_insert_id($conn);
     $num_halls = mysqli_fetch_assoc(mysqli_query($conn, "SELECT count FROM halls"))['count'];
-    $records_query = "INSERT INTO `records_2` (`hall_1`, `hall_2`, `hall_3`, `hall_4`, `hall_5`, `hall_6`, `hall_7`, `hall_8`, `hall_9`, `hall_10`, `number_of_halls`, `customer_id`, `customer_name`, `date`) VALUES ('0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '$num_halls', '$customer_id', '$name', '$date'";
-    $records_result = mysqli_query($conn, $records_query);
     if ($query) {
         $submitted = true;
     } else {
         $error = true;
     }
 }
-$users = mysqli_query($conn, "SELECT * FROM customers ORDER BY id ASC");
-// if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_user"]))) {
-//     $name = $_POST['edit_name'];
-//     $phone = $_POST['edit_phone'];
-//     $id = $_POST['user_id'];
+$users = mysqli_query($conn, "SELECT * FROM customers WHERE deleted = '0' ORDER BY id ASC");
 
-
-//     $query = mysqli_query($conn, "UPDATE customers SET name = '$name', phone = '$phone' WHERE id = '$id'");
-//     if ($query) {
-//         $submitted = true;
-//         $users = mysqli_query($conn, "SELECT * FROM customers ORDER BY id ASC");
-//     } else {
-//         $error = true;
-//     }
-// }
 ?>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
@@ -96,7 +82,6 @@ $users = mysqli_query($conn, "SELECT * FROM customers ORDER BY id ASC");
                     <label for="name" class="block text-xl font-medium leading-6 text-gray-900">Customer Name</label>
                     <div class="mt-2">
                         <input class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="text" name="name" id="name" placeholder="Enter name" required>
-
                     </div>
                 </div>
 
@@ -104,6 +89,12 @@ $users = mysqli_query($conn, "SELECT * FROM customers ORDER BY id ASC");
                     <label for="phone" class="block text-xl font-medium leading-6 text-gray-900">Phone Number</label>
                     <div class="mt-2">
                         <input class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="text" name="phone" id="phone" placeholder="Enter phone number" required>
+                    </div>
+                </div>
+                <div>
+                    <label for="phone" class="block text-xl font-medium leading-6 text-gray-900">When to add</label>
+                    <div class="mt-2">
+                        <input class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="timestamp" id="timestamp">
                     </div>
                 </div>
                 <div class="sm:col-span-12 flex items-end">

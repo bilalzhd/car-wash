@@ -4,6 +4,9 @@ $title = "Home";
 include "partials/head.php";
 include_once "./partials/db_connect.php";
 session_start();
+if(isset($_SESSION['role'])) {
+  header("Location: dashboard.php");
+}
 $error = false;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $username = $_POST['username'];
