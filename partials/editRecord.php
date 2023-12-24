@@ -14,9 +14,11 @@ if (($_SERVER["REQUEST_METHOD"] == "POST")) {
         'date' => $date,
         'number_of_halls' => $number_of_halls,
     );
+
     for ($i = 1; $i <= $number_of_halls; $i++) {
         $userData['hall_' . $i] = $hallValues[($i - 1)];
     }
+
     $entryAlreadyRecordedQuery = mysqli_query($conn, "SELECT * FROM records_2 WHERE customer_id = '$customer' AND date = '$date'");
 
     $checkIfSameNameQuery = mysqli_query($conn, "SELECT * FROM records_2 WHERE id = '$id'");
@@ -29,10 +31,10 @@ if (($_SERVER["REQUEST_METHOD"] == "POST")) {
         }
     }
 
+
     $entryAlreadyRecorded = mysqli_num_rows($entryAlreadyRecordedQuery);
 
-
-    if (!$entryAlreadyRecorded || ($entryAlreadyRecorded && $sameName)) {
+    if ($entryAlreadyRecorded && $sameName) {
         $query = "UPDATE records_2 SET number_of_halls = '$number_of_halls', customer_id = '$customer', customer_name = 'Customer Name', date = '$date', ";
         for ($i = 1; $i <= $number_of_halls; $i++) {
             $_hall = $hallValues[($i - 1)];
@@ -50,14 +52,38 @@ if (($_SERVER["REQUEST_METHOD"] == "POST")) {
                 'msg' => 'The record has been updated successfully',
                 'data' => $userData
             );
-            echo json_encode($response);
         } else {
             $response = array(
                 'status' => 0,
                 'msg' => 'There has been an error updating the record',
                 'data' => $userData
             );
-            echo json_encode($response);
+        }
+    } else if (!$entryAlreadyRecorded) {
+        $customer_name = mysqli_fetch_assoc(mysqli_query($conn, "SELECT name FROM customers WHERE id = '$customer'"))['name'];
+        $query = "INSERT INTO records_2 (number_of_halls, customer_id, customer_name, date";
+        for ($i = 1; $i <= $number_of_halls; $i++) {
+            $query .= ", hall_$i";
+        }
+        $query .= ") VALUES ('$number_of_halls', '$customer', '$customer_name', '$date'";
+        foreach ($hallValues as $value) {
+            $query .= ", '$value'";
+        }
+        $query .= ")";
+        $result = mysqli_query($conn, $query);
+
+        if ($result) {
+            $response = array(
+                'status' => 1,
+                'msg' => 'The records has been added successfully!',
+                'data' => $userData
+            );
+        } else {
+            $response = array(
+                'status' => 0,
+                'msg' => 'There has been some error please try again later!',
+                'data' => $userData
+            );
         }
     } else {
         $response = array(
@@ -65,6 +91,6 @@ if (($_SERVER["REQUEST_METHOD"] == "POST")) {
             'msg' => 'There is already a record with the same name and same date try updating that',
             'data' => $userData
         );
-        echo json_encode($response);
     }
+    echo json_encode($response);
 }

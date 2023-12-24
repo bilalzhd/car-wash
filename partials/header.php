@@ -11,7 +11,7 @@
                         <a href="http://localhost/car-wash/dashboard.php" class="text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Dashboard</a>
                         <?php
                         if ($role == 0 || $role == 2) {
-                            echo '<a href="http://localhost/car-wash/add-new-record.php" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Add New Record</a>';
+                            // echo '<a href="http://localhost/car-wash/add-new-record.php" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Add New Record</a>';
                         }
                         if ($role == 0) {
                             echo '<a href="http://localhost/car-wash/add-new-customer.php" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Add New Customer</a>
@@ -80,8 +80,8 @@
             <a href="http://localhost/car-wash/dashboard.php" class="bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium" aria-current="page">Dashboard</a>
             <?php
             if ($role == 0) {
-                echo '<a href="http://localhost/car-wash/add-new-record.php" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Add New Record</a>
-            <a href="http://localhost/car-wash/add-new-customer.php" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Add New Customer</a>
+                // echo '<a href="http://localhost/car-wash/add-new-record.php" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Add New Record</a>
+                echo '<a href="http://localhost/car-wash/add-new-customer.php" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Add New Customer</a>
             <a href="http://localhost/car-wash/users.php" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Users</a>
             <a href="http://localhost/car-wash/halls.php" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Halls</a>';
             } ?>
