@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 17, 2023 at 03:06 PM
+-- Generation Time: Dec 25, 2023 at 08:50 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -31,17 +31,21 @@ CREATE TABLE `customers` (
   `id` int(11) NOT NULL,
   `name` varchar(256) NOT NULL,
   `phone` varchar(256) NOT NULL,
-  `timestamp` datetime NOT NULL DEFAULT current_timestamp()
+  `timestamp` date NOT NULL DEFAULT current_timestamp(),
+  `delete_on` date DEFAULT NULL,
+  `deleted` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `customers`
 --
 
-INSERT INTO `customers` (`id`, `name`, `phone`, `timestamp`) VALUES
-(32, 'ziaullah', '0101010111', '2023-12-08 14:10:22'),
-(33, 'ahmed', '000', '2023-12-08 20:45:17'),
-(34, 'bilal', '0101010', '2023-12-17 18:22:01');
+INSERT INTO `customers` (`id`, `name`, `phone`, `timestamp`, `delete_on`, `deleted`) VALUES
+(45, 'Bilal', '00910', '2023-12-24', '2023-12-24', 1),
+(46, 'Zia', '09090', '2023-12-24', NULL, 0),
+(47, 'Ahmed', '0909', '2023-12-24', NULL, 0),
+(48, 'Bilal', '1091029', '2024-01-01', NULL, 0),
+(49, 'Bilal Zahid', '03132979209', '2024-03-01', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -50,6 +54,7 @@ INSERT INTO `customers` (`id`, `name`, `phone`, `timestamp`) VALUES
 --
 
 CREATE TABLE `halls` (
+  `id` int(11) NOT NULL,
   `count` int(11) NOT NULL,
   `date` date NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -58,8 +63,9 @@ CREATE TABLE `halls` (
 -- Dumping data for table `halls`
 --
 
-INSERT INTO `halls` (`count`, `date`) VALUES
-(4, '2023-12-17');
+INSERT INTO `halls` (`id`, `count`, `date`) VALUES
+(16, 4, '2023-12-26'),
+(18, 6, '2023-12-25');
 
 -- --------------------------------------------------------
 
@@ -123,45 +129,7 @@ CREATE TABLE `records_2` (
 --
 
 INSERT INTO `records_2` (`id`, `hall_1`, `hall_2`, `hall_3`, `hall_4`, `hall_5`, `hall_6`, `hall_7`, `hall_8`, `hall_9`, `hall_10`, `number_of_halls`, `customer_id`, `customer_name`, `date`) VALUES
-(2, 10, 101, 10, 10, 0, 0, 0, 0, 0, 0, 4, 32, 'Customer Name', '2023-12-07'),
-(3, 2, 11, 10, 20, 0, 0, 0, 0, 0, 0, 4, 32, 'Customer Name', '2023-12-08'),
-(5, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 4, 33, 'Customer Name', '2023-12-08'),
-(6, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 4, 33, 'Customer Name', '2023-12-09'),
-(7, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 4, 32, 'Customer Name', '2023-12-09'),
-(8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 32, 'Customer Name', '2023-12-10'),
-(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 20, 'Customer', '2023-12-17'),
-(10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 32, 'Customer Name', '2023-12-26'),
-(11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 33, 'Customer Name', '2023-12-26'),
-(14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 32, 'ziaullah', '2023-12-27'),
-(15, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 33, 'Customer Name', '2023-12-27'),
-(17, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 4, 33, 'Customer Name', '2023-12-28'),
-(18, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 32, 'Customer Name', '0000-00-00'),
-(19, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 33, 'Customer Name', '0000-00-00'),
-(20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 32, 'ziaullah', '2023-12-24'),
-(21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 33, 'Customer Name', '2023-12-24'),
-(22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 32, 'ziaullah', '2023-12-31'),
-(23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 33, 'ahmed', '2023-12-31'),
-(24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 32, 'ziaullah', '2023-12-30'),
-(25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 33, 'ahmed', '2023-12-30'),
-(26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 34, 'bilal', '2023-12-30'),
-(27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 32, 'ziaullah', '2023-12-29'),
-(28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 33, 'ahmed', '2023-12-29'),
-(29, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 34, 'bilal', '2023-12-29'),
-(30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 32, 'ziaullah', '2023-12-19'),
-(31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 33, 'ahmed', '2023-12-19'),
-(32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 34, 'bilal', '2023-12-19'),
-(33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 32, 'ziaullah', '2023-12-12'),
-(34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 33, 'ahmed', '2023-12-12'),
-(35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 34, 'bilal', '2023-12-12'),
-(36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 32, 'ziaullah', '2023-12-11'),
-(37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 33, 'ahmed', '2023-12-11'),
-(38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 34, 'bilal', '2023-12-11'),
-(39, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 32, 'Customer Name', '2023-12-25'),
-(40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 33, 'Customer Name', '0000-00-00'),
-(41, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 34, 'Customer Name', '0000-00-00'),
-(42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 32, 'ziaullah', '2024-01-01'),
-(43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 33, 'ahmed', '2024-01-01'),
-(44, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 34, 'Customer Name', '2024-01-01');
+(214, 2, 12, 1, 1, 0, 0, 0, 0, 0, 0, 4, 45, 'Bilal', '2023-12-24');
 
 -- --------------------------------------------------------
 
@@ -198,6 +166,12 @@ ALTER TABLE `customers`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `halls`
+--
+ALTER TABLE `halls`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `records`
 --
 ALTER TABLE `records`
@@ -223,7 +197,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+
+--
+-- AUTO_INCREMENT for table `halls`
+--
+ALTER TABLE `halls`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `records`
@@ -235,7 +215,7 @@ ALTER TABLE `records`
 -- AUTO_INCREMENT for table `records_2`
 --
 ALTER TABLE `records_2`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=215;
 
 --
 -- AUTO_INCREMENT for table `users`

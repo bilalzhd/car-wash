@@ -111,6 +111,7 @@ $users = mysqli_query($conn, "SELECT * FROM customers WHERE deleted = '0' ORDER 
                     <tr>
                         <th>Customer name</th>
                         <th>Phone number</th>
+                        <th>Date to be added</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -118,15 +119,16 @@ $users = mysqli_query($conn, "SELECT * FROM customers WHERE deleted = '0' ORDER 
                     <?php
                     while ($user = mysqli_fetch_assoc($users)) {
                         echo '<tr id="' . $user['id'] . '" data-id="' . $user['id'] . '">
-                            <td class="w-1/3">
+                            <td>
                                 <span class="editSpan name">' . $user['name'] . '</span>
                                 <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="text" name="edit_name" id="edit_name" placeholder="Enter name" required style="display: none" value="' . $user['name'] . '">
                             </td>
-                            <td class="w-1/3">
+                            <td>
                             <span class="editSpan phone">' . $user['phone'] . '</span>
                             <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="text" name="edit_phone" id="edit_phone" value="' . $user['phone'] . '" required style="display: none">
                             </td>
-                            <td class="w-1/3 flex whitespace-nowrap">
+                            <td>'.$user['timestamp'].'<td>
+                            <tdflex whitespace-nowrap">
                                 <div class="flex space-x-2">
                                     <button data-id="' . $user['id'] . '" class="editBtn flex items-center hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full text-white px-4 py-2 rounded-lg">Edit</button>
                                     <button data-id="' . $user['id'] . '" class="deleteBtn flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg">Delete</button>
@@ -192,7 +194,7 @@ $users = mysqli_query($conn, "SELECT * FROM customers WHERE deleted = '0' ORDER 
                     if (response.status == 1) {
                         trObj.find(".editSpan.name").text(response.data.edit_name);
                         trObj.find(".editSpan.phone").text(response.data.edit_phone);
-                         
+
                         trObj.find(".editInput.first_name").val(response.data.edit_name);
                         trObj.find(".editInput.last_name").val(response.data.edit_phone);
 

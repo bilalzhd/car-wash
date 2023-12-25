@@ -3,7 +3,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $date = $_POST['date'];
     include_once("./db_connect.php");
 
-    $checkHalls = mysqli_query($conn, "SELECT COUNT(*) FROM halls");
+    $checkHalls = mysqli_query($conn, "SELECT * FROM halls");
     if(mysqli_num_rows($checkHalls) > 1) {
         $delete_hall_query = mysqli_query($conn, "DELETE FROM halls WHERE date = '$date'");
         if ($delete_hall_query) {
