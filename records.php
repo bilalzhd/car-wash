@@ -191,14 +191,15 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                             $record_id = isset($record['id']) ? $record['id'] : rand(0, 10); ?>
                             <tr id="<?php echo $record_id ?>" data-id="<?php echo $record_id ?>">
                                 <td>
-                                    <span class="editSpan name"><?php echo $customer_name ?></span>
-                                    <select name="edit_name" class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 editInput" id="edit_name" required style="display: none">
+                                    <span class="name"><?php echo $customer_name ?></span>
+                                    <input type="hidden" class="editInput" name="edit_name" id="edit_name" value="<?php echo $customer_id ?>">
+                                    <!-- <select name="edit_name" class="px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 editInput" id="edit_name" required style="display: none">
                                         <?php
                                         $customers_query = mysqli_query($conn, "SELECT * FROM customers WHERE delete_on <= '$date'");
                                         while ($cus = mysqli_fetch_assoc($customers_query)) { ?>
                                             <option <?php echo $customer_id == $cus['id'] ? "selected" : "" ?> value="<?php echo $cus['id'] ?>"><?php echo $cus['name'] ?></option>
                                         <?php } ?>
-                                    </select>
+                                    </select> -->
                                 </td>
                             <?php
                             for ($i = 1; $i <= $num_halls; $i++) {
@@ -209,18 +210,19 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                                         <input class="editInput block w-full px-4 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="number" name="hall_' . $i . '" id="hall_' . $i . '" required style="display: none" value="' . $hall . '" min="0">
                                     </td>';
                             }
-                            if ($role == 2 && $record['date'] >= $today_date) {
+                            // if ($role == 2 && $record['date'] >= $today_date) {
+                            //     echo '<td>
+                            //             <span class="editSpan date">' . $record['date'] . '</span>
+                            //             <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" style="display: none" value="' . $record['date'] . '" disabled id="edit_date">
+                            //             <input type="hidden" class="editInput" name="edit_date" value="' . $record['date'] . '">
+                            //             </td>';
+                            // } else {
                                 echo '<td>
-                                        <span class="editSpan date">' . $record['date'] . '</span>
-                                        <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" style="display: none" value="' . $record['date'] . '" disabled id="edit_date">
-                                        <input type="hidden" class="editInput" name="edit_date" value="' . $record['date'] . '">
-                                        </td>';
-                            } else {
-                                echo '<td>
-                                    <span class="editSpan date">' . $_GET['date'] . '</span>
-                                    <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="edit_date" id="edit_date" required value="' . $_GET['date'] . '" style="display: none">
+                                    <span class="date">' . $_GET['date'] . '
+                                    <input type="hidden" name="edit_date" class="editInput" value="'.$_GET['date'].'"></span>
                                     </td>';
-                            };
+                                    // };
+                                    // <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="edit_date" id="edit_date" required value="' . $_GET['date'] . '" style="display: none">
 
                             echo '<td>' . $total . '</td>';
                             if ($role == 0 || ($role == 2 && $record['date'] >= $today_date)) {
