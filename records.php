@@ -166,7 +166,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                         $date = $_GET['date'];
                         $query = "SELECT 
                         c.id AS customer_id,
-                        c.name AS customer_name,";
+                        c.name AS customer_name, c.delete_on,";
                         for($i=1; $i<$num_halls; $i++) {
                             $query .= "r.hall_".$i.",";
                         };
@@ -174,7 +174,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                         r.date
                     FROM customers c
                     LEFT JOIN records_2 r ON c.id = r.customer_id AND r.date = '$date'
-                    WHERE c.timestamp <= '$date' AND (c.delete_on IS NULL OR c.delete_on >= '$date');
+                    WHERE c.timestamp <= '$date' AND (c.delete_on = 0 OR c.delete_on >= '$date');
                     ";
                     // $customers = mysqli_query($conn, "SELECT * FROM customers WHERE timestamp <= '$date' AND delete_on <= '$date'");
                     $customers = mysqli_query($conn,$query);
@@ -182,12 +182,18 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                             // echo var_dump($customer);
                             $customer_id = $customer['customer_id'];
                             $customer_name = $customer['customer_name'];
+                            // echo "DELETE ON ". $customer['delete_on'];
                             $records = mysqli_query($conn, "SELECT * FROM records_2 WHERE customer_id = $customer_id AND date = '$date'");
                             $total = 0;
                             $record = mysqli_fetch_assoc($records);
                             for ($i = 1; $i <= $num_halls; $i++) {
                                 $total +=  isset($record['hall_' . $i]) ? $record['hall_' . $i] : 0;
                             };
+                            if($customer['delete_on'] != '0') {
+                                if($total < 1) {
+                                    continue;
+                                }
+                            }
                             $record_id = isset($record['id']) ? $record['id'] : rand(0, 10); ?>
                             <tr id="<?php echo $record_id ?>" data-id="<?php echo $record_id ?>">
                                 <td>
