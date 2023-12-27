@@ -22,7 +22,7 @@ if ($role != 0) {
 $submitted = false;
 $error = false;
 
-$users = mysqli_query($conn, "SELECT * FROM halls");
+$halls = mysqli_query($conn, "SELECT * FROM halls");
 if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_user"]))) {
     $num = $_POST['number_of_halls'];
     $date = $_POST['date'];
@@ -44,7 +44,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_user"]))) {
         $update_query = mysqli_query($conn, "UPDATE records_2 SET number_of_halls = '$num' WHERE id = '$id'");
         if ($query) {
             $submitted = true;
-            $users = mysqli_query($conn, "SELECT * FROM halls");
+            $halls = mysqli_query($conn, "SELECT * FROM halls");
         } else {
             $error = true;
         }
@@ -105,23 +105,23 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_user"]))) {
                 </thead>
                 <tbody>
                     <?php
-                    mysqli_data_seek($users, 0);
-                    while ($user = mysqli_fetch_assoc($users)) {
-                        echo '<tr data-id="' . $user['count'] . '">
-                                <td class="w-2/5">' . $user['count'] . '</td>
-                                <td class="w-2/5">' . $user['date'] . '</td>
+                    mysqli_data_seek($halls, 0);
+                    while ($hall = mysqli_fetch_assoc($halls)) {
+                        echo '<tr data-id="' . $hall['id'] . '">
+                                <td class="w-2/5">' . $hall['count'] . '</td>
+                                <td class="w-2/5">' . $hall['date'] . '</td>
                                 <td class="w-1/5 flex whitespace-nowrap">
                                 <div class="flex space-x-2">
-                                <button id="' . $user['date'] . '" data-id="' . $user['date'] . '" class="edit-hall-button flex items-center hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full text-white px-4 py-2 rounded-lg">
+                                <button id="' . $hall['id'] . '" data-id="' . $hall['id'] . '" class="edit-hall-button flex items-center hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full text-white px-4 py-2 rounded-lg">
                                 Edit
                                 </button>
-                                <button id="' . $user['date'] . '" data-id="' . $user['date'] . '" class="delete-hall-button flex items-center hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full text-white px-4 py-2 rounded-lg">
+                                <button id="' . $hall['id'] . '" data-id="' . $hall['id'] . '" class="delete-hall-button flex items-center hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full text-white px-4 py-2 rounded-lg">
                                 Delete
                                 </button>
-                                <button data-id="' . $user['date'] . '" class="submit-edit-button hidden flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg"> 
+                                <button data-id="' . $hall['id'] . '" class="submit-edit-button hidden flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg"> 
                                     Submit
                                 </button>
-                                <button data-id="' . $user['date'] . '" class="cancel-edit-button hidden flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg"> 
+                                <button data-id="' . $hall['id'] . '" class="cancel-edit-button hidden flex hover:bg-indigo-700 transition-all duration-300 bg-indigo-500 w-full items-center text-white px-4 py-2 rounded-lg"> 
                                     Cancel
                                 </button>
                                     </div>
@@ -216,7 +216,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_user"]))) {
     deleteButton.forEach((button) => {
         button.addEventListener("click", async function(event) {
             if (confirm("Are you sure you want to delete?")) {
-                const date = event.target.getAttribute("data-id");
+                const id = event.target.getAttribute("data-id");
 
                 try {
                     const response = await fetch("partials/deleteHall.php", {
@@ -224,14 +224,14 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_user"]))) {
                         headers: {
                             "Content-type": "application/x-www-form-urlencoded",
                         },
-                        body: `date=${date}`
+                        body: `id=${id}`
                     });
 
                     if (response.ok) {
                         const result = await response.json();
                         if (result.status == 1) {
                             const dataTable = $('#example').DataTable();
-                            const rowIndex = dataTable.row(`[data-id="${date}"]`).index();
+                            const rowIndex = dataTable.row(`[data-id="${id}"]`).index();
                             dataTable.row(rowIndex).remove().draw();
                         } else {
                             alert(result.msg)

@@ -1,11 +1,11 @@
 <?php 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $date = $_POST['date'];
+    $id = $_POST['id'];
     include_once("./db_connect.php");
 
     $checkHalls = mysqli_query($conn, "SELECT * FROM halls");
     if(mysqli_num_rows($checkHalls) > 1) {
-        $delete_hall_query = mysqli_query($conn, "DELETE FROM halls WHERE date = '$date'");
+        $delete_hall_query = mysqli_query($conn, "DELETE FROM halls WHERE id = '$id'");
         if ($delete_hall_query) {
             echo json_encode(["status" => 1, "msg" => "Customer has been deleted successfully"]);
         } else {
