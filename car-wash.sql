@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 25, 2023 at 08:50 AM
+-- Generation Time: Dec 27, 2023 at 04:28 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -32,7 +32,7 @@ CREATE TABLE `customers` (
   `name` varchar(256) NOT NULL,
   `phone` varchar(256) NOT NULL,
   `timestamp` date NOT NULL DEFAULT current_timestamp(),
-  `delete_on` date DEFAULT NULL,
+  `delete_on` text DEFAULT '0',
   `deleted` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -42,10 +42,14 @@ CREATE TABLE `customers` (
 
 INSERT INTO `customers` (`id`, `name`, `phone`, `timestamp`, `delete_on`, `deleted`) VALUES
 (45, 'Bilal', '00910', '2023-12-24', '2023-12-24', 1),
-(46, 'Zia', '09090', '2023-12-24', NULL, 0),
-(47, 'Ahmed', '0909', '2023-12-24', NULL, 0),
-(48, 'Bilal', '1091029', '2024-01-01', NULL, 0),
-(49, 'Bilal Zahid', '03132979209', '2024-03-01', NULL, 0);
+(46, 'Zia', '09090', '2023-12-24', '2023-12-27', 1),
+(47, 'Ahmed', '0909', '2023-12-24', '2023-12-27', 1),
+(48, 'Bilal', '1091029', '2024-01-01', '2023-12-27', 1),
+(49, 'Bilal Zahid', '03132979209', '2024-03-01', '2023-12-27', 1),
+(50, 'Bilal', '9898', '0000-00-00', '2023-12-27', 1),
+(51, 'Bilal', '9889', '0000-00-00', '2023-12-27', 1),
+(52, 'ahsdk', '0909', '0000-00-00', '0', 0),
+(53, 'asduiad', 'aslda', '0000-00-00', '2023-12-27', 1);
 
 -- --------------------------------------------------------
 
@@ -64,8 +68,7 @@ CREATE TABLE `halls` (
 --
 
 INSERT INTO `halls` (`id`, `count`, `date`) VALUES
-(16, 4, '2023-12-26'),
-(18, 6, '2023-12-25');
+(19, 3, '2023-12-27');
 
 -- --------------------------------------------------------
 
@@ -108,16 +111,16 @@ INSERT INTO `records` (`id`, `hall_1`, `hall_2`, `hall_3`, `hall_4`, `customer_i
 
 CREATE TABLE `records_2` (
   `id` int(10) NOT NULL,
-  `hall_1` int(10) NOT NULL DEFAULT 0,
-  `hall_2` int(10) NOT NULL DEFAULT 0,
-  `hall_3` int(10) NOT NULL DEFAULT 0,
-  `hall_4` int(10) NOT NULL DEFAULT 0,
-  `hall_5` int(10) NOT NULL DEFAULT 0,
-  `hall_6` int(10) NOT NULL DEFAULT 0,
-  `hall_7` int(10) NOT NULL DEFAULT 0,
-  `hall_8` int(10) NOT NULL DEFAULT 0,
-  `hall_9` int(10) NOT NULL DEFAULT 0,
-  `hall_10` int(10) NOT NULL DEFAULT 0,
+  `hall_1` int(10) DEFAULT NULL,
+  `hall_2` int(10) DEFAULT NULL,
+  `hall_3` int(10) DEFAULT NULL,
+  `hall_4` int(10) DEFAULT NULL,
+  `hall_5` int(10) DEFAULT NULL,
+  `hall_6` int(10) DEFAULT NULL,
+  `hall_7` int(10) DEFAULT NULL,
+  `hall_8` int(10) DEFAULT NULL,
+  `hall_9` int(10) DEFAULT NULL,
+  `hall_10` int(10) DEFAULT NULL,
   `number_of_halls` int(20) NOT NULL,
   `customer_id` int(10) NOT NULL,
   `customer_name` varchar(250) NOT NULL,
@@ -129,7 +132,10 @@ CREATE TABLE `records_2` (
 --
 
 INSERT INTO `records_2` (`id`, `hall_1`, `hall_2`, `hall_3`, `hall_4`, `hall_5`, `hall_6`, `hall_7`, `hall_8`, `hall_9`, `hall_10`, `number_of_halls`, `customer_id`, `customer_name`, `date`) VALUES
-(214, 2, 12, 1, 1, 0, 0, 0, 0, 0, 0, 4, 45, 'Bilal', '2023-12-24');
+(215, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, '', '2023-12-24'),
+(216, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 0, '', '0000-00-00'),
+(217, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 4, 47, 'Ahmed', '0000-00-00'),
+(222, 1, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 3, 53, 'asduiad', '2023-12-27');
 
 -- --------------------------------------------------------
 
@@ -197,13 +203,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `halls`
 --
 ALTER TABLE `halls`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `records`
@@ -215,7 +221,7 @@ ALTER TABLE `records`
 -- AUTO_INCREMENT for table `records_2`
 --
 ALTER TABLE `records_2`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=215;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=223;
 
 --
 -- AUTO_INCREMENT for table `users`
