@@ -27,7 +27,7 @@ SET time_zone = "+00:00";
 -- Table structure for table `customers`
 --
 
-CREATE TABLE `customers` (
+CREATE TABLE IF NOT EXISTS `customers` (
   `id` int(11) NOT NULL,
   `name` varchar(256) NOT NULL,
   `phone` varchar(256) NOT NULL,
@@ -57,7 +57,7 @@ INSERT INTO `customers` (`id`, `name`, `phone`, `timestamp`, `delete_on`, `delet
 -- Table structure for table `halls`
 --
 
-CREATE TABLE `halls` (
+CREATE TABLE IF NOT EXISTS `halls` (
   `id` int(11) NOT NULL,
   `count` int(11) NOT NULL,
   `date` date NOT NULL DEFAULT current_timestamp()

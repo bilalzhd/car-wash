@@ -371,7 +371,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_user"]))) {
             var ID = $(this).closest("tr").attr('id');
             $.ajax({
                 type: 'POST',
-                url: 'partials/deleteCustomer.php',
+                url: 'partials/deleteUser.php',
                 dataType: "json",
                 data: 'action=delete&id=' + ID,
                 success: function(response) {
@@ -383,6 +383,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_user"]))) {
                         trObj.find(".editBtn").show();
                         trObj.find(".deleteBtn").show();
                         alert(response.msg);
+                        window.location.reload();
                     }
                     $('#userData').css('opacity', '');
                 }
