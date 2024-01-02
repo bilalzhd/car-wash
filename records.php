@@ -13,7 +13,30 @@ if (!isset($_SESSION['user_id'])) {
 $role = $_SESSION['role'];
 include_once("./partials/db_connect.php");
 $today_date = $_GET['date'];
+$date = $_GET['date'];
 $records = mysqli_query($conn, "SELECT * FROM records_2 WHERE date = '$today_date'");
+$num_halls;
+$halls_query = mysqli_query($conn, "SELECT count FROM halls WHERE date <= '$today_date' ORDER by date DESC LIMIT 1");
+$no_records_halls = mysqli_fetch_assoc($halls_query);
+if (mysqli_num_rows($halls_query) > 1) {
+    $num_halls = mysqli_fetch_assoc($records)['number_of_halls'];
+} else {
+    if (isset($no_records_halls)) {
+        $num_halls = $no_records_halls['count'];
+    } else {
+
+        // if ($no_records_halls == NULL && $no_records) {
+        $num_halls = mysqli_fetch_assoc(mysqli_query($conn, "SELECT count FROM halls WHERE date >= '$today_date' ORDER by date ASC LIMIT 1"))['count'];
+        // } else {
+        //     $num_halls = mysqli_fetch_assoc(mysqli_query($conn, "SELECT count FROM halls ORDER BY date DESC LIMIT 1;"))['count'];
+        // }
+    }
+}
+$query = "SELECT  c.id AS customer_id, c.name AS customer_name, c.delete_on,";
+for ($i = 1; $i < $num_halls; $i++) {
+    $query .= "r.hall_" . $i . ",";
+};
+$query .= "r.number_of_halls, r.date FROM customers c LEFT JOIN records_2 r ON c.id = r.customer_id AND r.date = '$date' WHERE c.timestamp <= '$date' AND (c.delete_on = 0 OR c.delete_on >= '$date');";
 if (mysqli_num_rows($records) < 1) {
     $no_records = true;
 }
@@ -128,23 +151,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                             <?php mysqli_data_seek($records, 0); ?>
                             <th>Customer</th>
                             <?php
-                            $num_halls;
-                            $halls_query = mysqli_query($conn, "SELECT count FROM halls WHERE date <= '$today_date' ORDER by date DESC LIMIT 1");
-                            $no_records_halls = mysqli_fetch_assoc($halls_query);
-                            if (!$no_records) {
-                                $num_halls = mysqli_fetch_assoc($records)['number_of_halls'];
-                            } else {
-                                if (isset($no_records_halls)) {
-                                    $num_halls = $no_records_halls['count'];
-                                } else {
 
-                                    // if ($no_records_halls == NULL && $no_records) {
-                                    $num_halls = mysqli_fetch_assoc(mysqli_query($conn, "SELECT count FROM halls WHERE date >= '$today_date' ORDER by date ASC LIMIT 1"))['count'];
-                                    // } else {
-                                    //     $num_halls = mysqli_fetch_assoc(mysqli_query($conn, "SELECT count FROM halls ORDER BY date DESC LIMIT 1;"))['count'];
-                                    // }
-                                }
-                            }
 
                             for ($i = 1; $i <= $num_halls; $i++) {
                                 echo '<th>Hall ' . $i . '</th>';
@@ -163,22 +170,10 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                     <tbody>
                         <?php
                         // mysqli_data_seek($records, 0);
-                        $date = $_GET['date'];
-                        $query = "SELECT 
-                        c.id AS customer_id,
-                        c.name AS customer_name, c.delete_on,";
-                        for($i=1; $i<$num_halls; $i++) {
-                            $query .= "r.hall_".$i.",";
-                        };
-                        $query .= "r.number_of_halls,
-                        r.date
-                    FROM customers c
-                    LEFT JOIN records_2 r ON c.id = r.customer_id AND r.date = '$date'
-                    WHERE c.timestamp <= '$date' AND (c.delete_on = 0 OR c.delete_on >= '$date');
-                    ";
-                    // $customers = mysqli_query($conn, "SELECT * FROM customers WHERE timestamp <= '$date' AND delete_on <= '$date'");
-                    $customers = mysqli_query($conn,$query);
-                    while ($customer = mysqli_fetch_assoc($customers)) {
+
+                        // $customers = mysqli_query($conn, "SELECT * FROM customers WHERE timestamp <= '$date' AND delete_on <= '$date'");
+                        $customers = mysqli_query($conn, $query);
+                        while ($customer = mysqli_fetch_assoc($customers)) {
                             // echo var_dump($customer);
                             $customer_id = $customer['customer_id'];
                             $customer_name = $customer['customer_name'];
@@ -189,8 +184,8 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                             for ($i = 1; $i <= $num_halls; $i++) {
                                 $total +=  isset($record['hall_' . $i]) ? $record['hall_' . $i] : 0;
                             };
-                            if($customer['delete_on'] != '0') {
-                                if($total < 1) {
+                            if ($customer['delete_on'] != '0') {
+                                if ($total < 1) {
                                     continue;
                                 }
                             }
@@ -223,12 +218,12 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_record"]))) {
                             //             <input type="hidden" class="editInput" name="edit_date" value="' . $record['date'] . '">
                             //             </td>';
                             // } else {
-                                echo '<td>
+                            echo '<td>
                                     <span class="date">' . $_GET['date'] . '
-                                    <input type="hidden" name="edit_date" class="editInput" value="'.$_GET['date'].'"></span>
+                                    <input type="hidden" name="edit_date" class="editInput" value="' . $_GET['date'] . '"></span>
                                     </td>';
-                                    // };
-                                    // <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="edit_date" id="edit_date" required value="' . $_GET['date'] . '" style="display: none">
+                            // };
+                            // <input class="editInput px-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" type="date" name="edit_date" id="edit_date" required value="' . $_GET['date'] . '" style="display: none">
 
                             echo '<td>' . $total . '</td>';
                             if ($role == 0 || ($role == 2 && $record['date'] >= $today_date)) {

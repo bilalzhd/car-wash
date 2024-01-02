@@ -382,7 +382,7 @@ if (($_SERVER["REQUEST_METHOD"] == "POST") && (isset($_POST["edit_user"]))) {
                         trObj.find(".cancelBtn").hide();
                         trObj.find(".editBtn").show();
                         trObj.find(".deleteBtn").show();
-                        alert(response.msg);
+                        // alert(response.msg);
                         window.location.reload();
                     }
                     $('#userData').css('opacity', '');
